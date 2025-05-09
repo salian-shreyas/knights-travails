@@ -7,20 +7,17 @@ class Knights
 
   def path(destination)
     search_path(destination)
-    print_path
+
+    @short_path
   end
 
   private
-
-  def print_path
-    p @short_path
-  end
 
   def search_path(destination, start = @coordinates, current_path = [])
     return if longer_path?(current_path)
 
     current_path << start
-    if destination_reached?(start, destination)
+    if start == destination
       @short_path = current_path
     else
       search_immediate_path(destination, start, current_path)
@@ -28,8 +25,8 @@ class Knights
   end
 
   def search_immediate_path(destination, start, current_path)
-    immediate_squares(Square.new(start)).each do |square|
-      search_path(destination, square.data, current_path.dup) unless current_path.include? square.data
+    immediate_squares(start).each do |square|
+      search_path(destination, square, current_path.dup) unless current_path.include? square
     end
   end
 
@@ -39,22 +36,15 @@ class Knights
     current_path.length >= @short_path.length
   end
 
-  def destination_reached?(start, destination)
-    start == destination
-  end
-
   def immediate_squares(square)
-    squares = []
-    possible_moves(square).each do |move|
-      squares << Square.new(move, square.next) if valid?(move)
+    possible_moves(square).each_with_object([]) do |move, squares|
+      squares << move if valid?(move)
     end
-
-    squares
   end
 
   def possible_moves(square)
-    row = square.data[0]
-    col = square.data[1]
+    row = square[0]
+    col = square[1]
 
     [
       [row + 1, col + 2],
